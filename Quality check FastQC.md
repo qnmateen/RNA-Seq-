@@ -17,3 +17,9 @@ GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT
 !''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65
 **
 
+### Quality¶
+
+The quality, also called ***phred score***, is the probability that the corresponding basecall is incorrect.
+
+Phred scores use a logarithmic scale, and are represented by ASCII characters, mapping to a quality usually going from 0 to 40.
+
