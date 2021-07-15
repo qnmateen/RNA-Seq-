@@ -2,11 +2,11 @@
 
 ## Step involved 
 
-1.Download raw file from sra 
-2.Convert to fastq
+1.Download raw file from sra.   
+2.Convert to fastq. 
  *can keep files as zip to save space
-3.Perform Fastqc for quality check
-4.Perform Multiqc
+3.Perform Fastqc for quality check.  
+4.Perform Multiqc.  
 5.Run Trimmomatic- to remove adaptors, repeated sequences, and short sequences
 6.Perform FastQC on trimmed files and  MultiQC to compare with files before trimming.
 7.Align the files reference genome using Star or HISAT2
