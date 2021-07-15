@@ -25,7 +25,7 @@ Phred scores use a logarithmic scale, and are represented by ASCII characters, m
 
 # Command
 
-fastqc -t 8 -o fastqc/ SRR*
--t thread 8
--o output fastqc folder
-file name SRR* 
+fastqc -t 8 -o fastqc/ SRR*  
+-t thread 8   
+-o output fastqc folder    
+file name SRR*   
