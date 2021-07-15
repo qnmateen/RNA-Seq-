@@ -23,3 +23,9 @@ The quality, also called ***phred score***, is the probability that the correspo
 
 Phred scores use a logarithmic scale, and are represented by ASCII characters, mapping to a quality usually going from 0 to 40.
 
+# Command
+
+fastqc -t 8 -o fastqc/ SRR*
+-t thread 8
+-o output fastqc folder
+file name SRR* 
