@@ -4,9 +4,9 @@ Columns are-
 
 ## Sample id Gender Genotype  
 
-**dds$group <- factor(paste0(dds$Gender, dds$Genotype))
-design(dds) <- ~ group**
-dds <- DESeq(dds)
+**dds$group <- factor(paste0(dds$Gender, dds$Genotype))  
+design(dds) <- ~ group**   
+dds <- DESeq(dds)   
 resultsNames(dds)   
 
 #e.g. for condition KO Male vs KO female
