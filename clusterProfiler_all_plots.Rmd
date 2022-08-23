@@ -1,0 +1,240 @@
+
+---
+title: "cluster profiler downregulated gene"
+output: html_notebook
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("enrichplot")
+```
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("clusterProfiler")
+```
+
+
+```{r}
+library(enrichplot)
+library(clusterProfiler)
+library(org.Mm.eg.db)
+```
+
+
+
+```{r}
+genelist <- read.csv("Deseq2_result.csv")
+gene_list=bitr(gene=substr(genelist$X,1,18),
+          fromType = "ENSEMBL",
+          toType = "ENTREZID",
+          OrgDb = org.Mm.eg.db)
+
+
+```
+
+
+
+```{r}
+
+Day14_down <- read.csv("downregulate_unique.csv")
+
+
+gene=bitr(gene=Day14_down$GENEID,
+          fromType = "ENSEMBL",
+          toType = "ENTREZID",
+          OrgDb = org.Mm.eg.db)
+        
+```
+
+
+
+```{r}
+ego <- enrichGO(gene          = gene$ENTREZID,
+                universe      = names(gene_list$ENTREZID),
+                OrgDb         = org.Mm.eg.db,
+                ont           = "CC",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05,
+        readable      = TRUE)
+head(ego)
+```
+
+```{r fig.width=5, fig.height=5,echo=FALSE}
+library(enrichplot)
+barplot(ego, showCategory=20) 
+```
+
+
+```{r fig.width=5, fig.height=5,echo=FALSE}
+dotplot(ego, showCategory=20) + ggtitle("dotplot for EnrichGO")
+```
+
+```{r}
+expression_value <- read.csv("downregulate_genes_expression.csv")
+
+
+
+```
+
+```{r}
+#making my genelist
+## assume 1st column is ID
+## 2nd column is FC
+
+## feature 1: numeric vector
+geneList = expression_value[,4]
+
+## feature 2: named vector
+names(geneList) = as.character(gene[,2])
+
+## feature 3: decreasing orde
+geneList = sort(geneList, decreasing = TRUE)
+```
+
+```{r}
+ego3 <- gseGO(geneList     = geneList,
+              OrgDb        = org.Mm.eg.db,
+              ont          = "CC",
+              minGSSize    = 100,
+              maxGSSize    = 500,
+              pvalueCutoff = 0.05,
+              verbose      = FALSE)
+```
+
+```{r}
+length(geneList)
+length(unique(geneList))
+```
+
+```{r}
+dotplot(ego3, showCategory=20) + ggtitle("dotplot for gseGO")
+```
+
+
+
+```{r}
+p1 <- heatplot(ego, showCategory=5)
+p2 <- heatplot(ego3, foldChange=geneList, showCategory=5)
+cowplot::plot_grid(p1, p2, ncol=1, labels=LETTERS[1:2]) 
+```
+
+```{r fig.width=5, fig.height=5,echo=FALSE}
+#enrich go BP
+ego_BP <- enrichGO(gene          = gene$ENTREZID,
+                universe      = names(gene_list$ENTREZID),
+                OrgDb         = org.Mm.eg.db,
+                ont           = "BP",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05,
+        readable      = TRUE)
+
+
+barplot(ego_BP, showCategory=20) 
+dotplot(ego_BP, showCategory=30) + ggtitle("dotplot for EnrichGO_BP")
+```
+
+```{r fig.width=5, fig.height=7,echo=FALSE}
+#enrichGo MF
+ego_MF <- enrichGO(gene          = gene$ENTREZID,
+                universe      = names(gene_list$ENTREZID),
+                OrgDb         = org.Mm.eg.db,
+                ont           = "MF",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.01,
+                qvalueCutoff  = 0.05,
+        readable      = TRUE)
+
+
+barplot(ego_MF, showCategory=20) 
+dotplot(ego_MF, showCategory=15) + ggtitle("dotplot for EnrichGO_MF")
+```
+
+```{r}
+#gseGO BP
+gsego_BP <- gseGO(geneList     = geneList,
+              OrgDb        = org.Mm.eg.db,
+              ont          = "BP",
+              minGSSize    = 100,
+              maxGSSize    = 500,
+              pvalueCutoff = 0.05,
+              verbose      = FALSE)
+dotplot(gsego_BP, showCategory=15) + ggtitle("dotplot for gseGO_BP")
+
+```
+
+```{r}
+#gseGO MF
+gsego_MF <- gseGO(geneList     = geneList,
+              OrgDb        = org.Mm.eg.db,
+              ont          = "MF",
+              minGSSize    = 100,
+              maxGSSize    = 500,
+              pvalueCutoff = 0.05,
+              verbose      = FALSE)
+dotplot(gsego_MF, showCategory=30) + ggtitle("dotplot for gseGO_MF")
+```
+
+
+```{r fig.width=5, fig.height=7,echo=FALSE}
+edo_BP <- pairwise_termsim(ego_BP)
+emapplot(edo_BP,showCategory=20)
+
+#cowplot::plot_grid(p1, p2, p3, p4, ncol=2, labels=LETTERS[1:4])
+```
+
+
+```{r}
+
+edo_MF <- pairwise_termsim(ego_MF)
+edo_BPgse <- pairwise_termsim(gsego_BP)
+edo_MFgse <- pairwise_termsim(gsego_MF)
+
+p2 <- emapplot(edo_MF)
+p3 <- emapplot(edo_BPgse)
+p4 <- emapplot(edo_MFgse)
+```
+
+
+#for those specific days
+#day 3
+
+```{r}
+Day3_down <- read.csv("3Downregulated_unique.csv")
+
+
+gene=bitr(gene=Day3_down$GENEID,
+          fromType = "ENSEMBL",
+          toType = "ENTREZID",
+          OrgDb = org.Mm.eg.db)
+```
+
+
+```{r fig.width=5, fig.height=7,echo=FALSE}
+
+#enrichGo CC for day3
+ego_CC <- enrichGO(gene          = gene$ENTREZID,
+                universe      = names(gene_list$ENTREZID),
+                OrgDb         = org.Mm.eg.db,
+                ont           = "CC",
+                pAdjustMethod = "BH",
+                pvalueCutoff  = 0.1,
+                qvalueCutoff  = 0.1,
+        readable      = TRUE)
+
+
+barplot(ego_CC, showCategory=10) 
+dotplot(ego_CC, showCategory=10) + ggtitle("dotplot for EnrichGO_CC")
+```
+
+
